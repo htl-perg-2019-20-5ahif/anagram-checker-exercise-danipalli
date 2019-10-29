@@ -1,6 +1,8 @@
 ﻿using AnagramCheckerLibrary;
 using Microsoft.Extensions.Configuration;
 using System;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace AnagramCheckerConsoleApp
 {
@@ -30,35 +32,31 @@ namespace AnagramCheckerConsoleApp
 
             if (args[1].Equals("getKnown") && args.Length == 3)
             {
-                DictionaryFileReader reader = new DictionaryFileReader();
-                var dictionaryText = reader.ReadDictionary();
+                var config = new ConfigurationBuilder();
+                config.AddJsonFile("config.json");
+                config.AddEnvironmentVariables();
+                var dictionaryReader = new DictionaryFileReader(config.Build());
+                var dictionary = dictionaryReader.ReadDictionary();
+                var key = new AnagramChecker().SortAscending(args[2]);
 
-                AnagramChecker checker = new AnagramChecker();
-
-                var anagrams = checker.FindAnagrams(dictionaryText, args[2]);
-
-                bool found = false;
-                foreach (string anagram in anagrams)
+                if (dictionary.ContainsKey(key))
                 {
-                    found = true;
-                    Console.WriteLine(anagram);
+                    foreach (var word in dictionary[key])
+                    {
+                        if (!word.Equals(args[2]))
+                        {
+                            Console.WriteLine(word);
+                        }
+                    }
                 }
-
-                if(!found)
+                else
                 {
                     Console.WriteLine("No known anagrams found");
                 }
                 return;
             }
-        }
 
-        //private static IConfigurationBuilder GetConfiguration()
-        //{
-        //    var environmentName = Environment.GetEnvironmentVariable("Hosting:Environment");
-        //    return new ConfigurationBuilder()
-        //        .AddJsonFile("appsettings.json")
-        //        .AddJsonFile($"appsettings.{environmentName}.json", true)
-        //        .AddEnvironmentVariables();
-        //}
+            Console.WriteLine("Please enter valid arguments.");
+        }
     }
 }

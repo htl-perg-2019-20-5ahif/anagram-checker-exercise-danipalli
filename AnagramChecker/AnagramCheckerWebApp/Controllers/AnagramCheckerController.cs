@@ -12,13 +12,15 @@ namespace AnagramCheckerWebApp.Controllers
     [Route("api")]
     public class AnagramCheckerController : ControllerBase
     {
-        private readonly IDictionaryFileReader reader;
-        private readonly IAnagramChecker comparer;
+        private readonly IDictionaryFileReader _reader;
+        private readonly IAnagramChecker _comparer;
+        private readonly ILogger<AnagramCheckerController> _logger;
 
-        public AnagramCheckerController(IDictionaryFileReader reader, IAnagramChecker comparer)
+        public AnagramCheckerController(IDictionaryFileReader reader, IAnagramChecker comparer, ILogger<AnagramCheckerController> logger)
         {
-            this.reader = reader;
-            this.comparer = comparer;
+            _reader = reader;
+            _comparer = comparer;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -40,19 +42,26 @@ namespace AnagramCheckerWebApp.Controllers
         [Route("getKnownAnagrams")]
         public IActionResult KnownAnagramCheck([FromQuery] string w)
         {
-            DictionaryFileReader reader = new DictionaryFileReader();
-            var dictionaryText = reader.ReadDictionary();
+            var dictionary = _reader.ReadDictionary();
+            var key = _comparer.SortAscending(w);
 
-            AnagramChecker checker = new AnagramChecker();
-
-            var anagrams = checker.FindAnagrams(dictionaryText, w);
-
-            if(anagrams.ToArray().Length == 0)
+            if (dictionary.ContainsKey(key))
             {
+                List<string> words = new List<string>();
+                foreach (var word in dictionary[key])
+                {
+                    if (!word.Equals(w))
+                    {
+                        words.Add(word);
+                    }
+                }
+                return Ok(words);
+            }
+            else
+            {
+                _logger.LogInformation("No anagram found for word \"" + w + "\"");
                 return NotFound();
             }
-
-            return Ok(anagrams);
         }
     }
 }

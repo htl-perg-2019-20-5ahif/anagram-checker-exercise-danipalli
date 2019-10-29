@@ -6,6 +6,6 @@ namespace AnagramCheckerLibrary
 {
     public interface IDictionaryFileReader
     {
-        string ReadDictionary();
+        Dictionary<string, List<string>> ReadDictionary();
     }
 }

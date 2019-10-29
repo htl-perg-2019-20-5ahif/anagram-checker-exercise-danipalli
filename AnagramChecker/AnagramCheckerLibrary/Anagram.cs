@@ -18,5 +18,11 @@ namespace AnagramCheckerLibrary
             W1 = w1;
             W2 = w2;
         }
+
+        public bool Equals(Anagram anagram)
+        {
+
+            return false;
+        }
     }
 }

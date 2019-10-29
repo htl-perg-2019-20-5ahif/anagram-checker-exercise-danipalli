@@ -21,7 +21,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:5000/api/getKnownAnagrams?w=silent
+GET http://localhost:5000/api/getKnownAnagrams?w=silen
 
 
 
